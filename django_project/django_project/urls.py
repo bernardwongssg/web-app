@@ -19,5 +19,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('blog/', include('blog.urls')), # use include to map which route should have which URLs. in this case, blog/ uses blog/urls.py 
+    path('', include('blog.urls')), # use include to map which route should have which URLs. in this case, blog/ uses blog/urls.py 
 ]
