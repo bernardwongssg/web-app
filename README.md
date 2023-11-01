@@ -36,7 +36,13 @@ Following along Corey Schafer's tutorial to get a better understanding of Django
 - you can then load in certain files uing '{% static 'filepath_to_file'%}' in href. The static statement generates the absolute URL of the file
 
 *URL Etiquette*
-- Any time you use URLs in a template, it's a good idea to use {% url 'url_name' %} so that if you ever change URL names or functions it will transfer over everywhere. This is also why setting a name for each urlpattern in urls.py is a good idea  
+- Any time you use URLs in a template, it's a good idea to use {% url 'url_name' %} so that if you ever change URL names or functions it will transfer over everywhere. This is also why setting a name for each urlpattern in urls.py is a good idea
+
+### Lesson 4 (10.31.23)
+*Setting Up the Admin Page*
+- Before you can create a user for the admin page you have to make migrations so the default tables are built
+- you can use the command 'python manage.py createsuperuser' to create credentials for the admin page
+- each user has different permissions, staff allows the user to log into the admin site and superuser allows the user to make changes 
 
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
