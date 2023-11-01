@@ -42,7 +42,30 @@ Following along Corey Schafer's tutorial to get a better understanding of Django
 *Setting Up the Admin Page*
 - Before you can create a user for the admin page you have to make migrations so the default tables are built
 - you can use the command 'python manage.py createsuperuser' to create credentials for the admin page
-- each user has different permissions, staff allows the user to log into the admin site and superuser allows the user to make changes 
+- each user has different permissions, staff allows the user to log into the admin site and superuser allows the user to make changes
+
+### Lesson 5 (11.1.23)
+*Basics about the Database*
+- Django has a built in ORM (object relational mapping) that allows for you to use different databases without changing your code. All the code to query ANY database remains the same, you just connect different databases in the settings.py file
+- The ORM is represented as models in models.py which is extremely similar to classes
+- when creating a model there are differetn data types and fields that you can use (example list can be found [here]([https://duckduckgo.com](https://www.geeksforgeeks.org/django-model-data-types-and-fields-list/#))). ForeignKey() is used when mapping a many-to-one relationship (more about this can be found [here](https://docs.djangoproject.com/en/4.2/topics/db/examples/many_to_one/))
+- remember to call manage.py makemigrations (to make the migration file) and manage.py migrate (to actually run the migration file and make the models)
+- if you're more comfortable interpretting SQL, you can call python manage.py sqlmigrate 'app_name' 'migration_number'
+
+*Playing around with the Shell*
+- you can use the python shell to play around with making models; these would be similar to the functions made in views.py. You can use the command 'python manage.py shell' to run python commands
+- remember that model objects are saved into the database until you call the save() method
+- if you want to find all the items mapped to a foreignkey, you can take the foreign key and call the function 'modelname_set' to get the query. ex) say you have a ForeignKey User in the model Post, where a User can have multiple Posts but not vice versa. You can select a user (say user_1) and call user_1.post_set.all() to get all the Posts that user_1 is connected to (the attribute is called post_set b/c the model is named Post)
+- you can also use 'modelname_set' to add into the model. ex) user_1 could make a post by doing user_1.post_set.create('insert Post attributes here'). You don't need to include the foreign key into the model set's attributes (b/c the foreign key is the one creating it) and you don't need to save the model, it's done automatically
+
+*Using the Database in views.py*
+- in the views.py file make sure you import whatever Model you're using from the models.py file. You can then use the same querying code mentioned in the previous section
+
+*Changing the format of Database Attributes* 
+- Django has some built in filters for some of the database attributes that can prove to be useful. If you want to make changes, go to the html file pulling the attribute and call the filter with '|'. ex) if I have a Post model with the date_posted attribute, I can filter just the date by doing {{ post.date_posted|date:"F d, Y" }}. More about built in filters can be found [here](https://docs.djangoproject.com/en/2.0/ref/templates/builtins/#filter)
+
+*Viewing Databases on the Admin Page*
+- In order to view your newly created Models/Databases you have to register your models in the app's admin.py page. You can do this by importing the model in admin.py and calling the method admin.site.register('model_name')
 
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
