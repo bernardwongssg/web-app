@@ -1,21 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse 
-
-
-posts = [
-    {
-        'author': 'Bernie',
-        'title': 'Blog Post 1',
-        'content': 'first post content',
-        'date_posted': '10.28.23',
-    }, 
-    {
-        'author': 'Bdub',
-        'title': 'Blog Post 2',
-        'content': 'first post content go crazy',
-        'date_posted': '10.28.23',
-    }
-]
+from .models import Post
 
 def home(request): 
     '''
@@ -30,6 +15,8 @@ def home(request):
     1. load template in, render it, pass it as HttpResponse 
     2. Django also has a shortcut to do ^ 
     '''
+    posts = Post.objects.all()
+
     context = {
         'posts':  posts
     }
