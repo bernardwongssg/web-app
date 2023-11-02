@@ -67,6 +67,23 @@ Following along Corey Schafer's tutorial to get a better understanding of Django
 *Viewing Databases on the Admin Page*
 - In order to view your newly created Models/Databases you have to register your models in the app's admin.py page. You can do this by importing the model in admin.py and calling the method admin.site.register('model_name')
 
+### Lesson 6 (11.1.23)
+*Creating a User Creation Form* 
+- Django has some built in classes that you can import and use, especially for forms
+- Note that you can extend templates from other apps, this is why the internal folder with the app name is useful
+- Django requires that all forms have a CRSF token, which is just built in security that helps prevent malicious attacks. This can be included in the form using the code snippet {% csrf_token %}
+- you can render certain items as paragraph tags using the .as_p method; ex) say you're passing in a form, form.as_p will render it using paragraph tags and most likely make it look better
+
+*Understanding Requests*
+- there are different types of HTTP requests but the most basic kinds are get requests and post requests. get requests are typically for navigating pages, post requests pass in information.
+
+Understanding Messages* 
+- theres a default class called messages that you can import from django.contrib that allows for 'flash messages', or messages that display as a one time notification. The framework allows you to save a message in one request and retrieve it for display in a different request (typically the next one). More can be found out about it [here](https://docs.djangoproject.com/en/4.2/ref/contrib/messages/)
+- messages options include .add_message, .debug, .info, .success, .warning, .error
+
+*Modifying Models* 
+- Model Meta is basically the inner class of your model class. Model Meta is basically used to change the behavior of your model fields like changing order options, verbose_name, and a lot of other options. It’s completely optional to add a Meta class to your model. More can be read about it [here](https://www.geeksforgeeks.org/meta-class-in-models-django/#)
+
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
 - sometimes apps only do internal things, urls.py is only useful routing users to pages specific to that app 
