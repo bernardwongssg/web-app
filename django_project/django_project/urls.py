@@ -17,11 +17,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include 
 
+# good practice to rename views import 
+from django.contrib.auth import views as auth_views 
 from users import views as user_views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # views from user 
     path('register/', user_views.register, name = 'register'),
+    path('profile/', user_views.profile, name = 'profile'),
+    # logging in/out
+    # by default auth_views.LoginView and auth_views.LogoutView look for a registration folder in templates, 
+    # so we change to users folder instead 
+    path('login/', auth_views.LoginView.as_view(template_name = 'users/login.html'), name = 'login'),
+    path('logout/', auth_views.LogoutView.as_view(template_name = 'users/logout.html'), name = 'logout'),
+    # navigating through blogs 
     path('', include('blog.urls')), # use include to map which route should have which URLs. in this case, blog/ uses blog/urls.py 
     
 ]

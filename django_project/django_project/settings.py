@@ -134,3 +134,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CRISPY SETTINGS 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# login redirect 
+LOGIN_REDIRECT_URL = 'blog-home'
+
+# profile w/o  login redirect
+LOGIN_URL = 'login'
