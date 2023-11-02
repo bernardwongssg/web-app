@@ -102,16 +102,22 @@ Understanding Messages*
 Why isn't the urls.py auto-generated? 
 - sometimes apps only do internal things, urls.py is only useful routing users to pages specific to that app 
 - reference: https://stackoverflow.com/questions/59480290/why-is-the-urls-py-file-not-created-automatically
+
 Why use include() instead of importing apps?
 - include() is used primarily for using urls.py files for each app, if the app doesn't have a urls.py file then importing might be ideal. However, importing for urls.py will lead to cyclical imports of the app which isn't ideal
+
 What's the purpose of the nested app name folder structure for templates?
 - it's just good practice, if you have two templates that are named the same but are meant to be used for two different applications, Django will select the first matched html file. By creating an internal folder with the app name, it'll look for the folder first and select the proper template
 - reference: https://stackoverflow.com/questions/52231294/what-is-the-reason-for-the-nested-template-directory-structure-in-django
+
 Why don't you need to download the files for some of the extra CSS/JS packages (bootstrap, dropzone, etc.)?
 - the files are served from a content delivery network so we don't need to download any files
+
 Why do my CSS changes not appear?
 - Sometimes you have to close out of the server or reset browser cache. for mac it's cmd + shift + r, for windows it's ctrl + F5
+
 How do you deal with importing views from multiple applications?
 - In general it's good etiquette to always change the name of a views import since there's a high chance you'll import multiple views files. ex) if you want to import functions from app 'Users' and you want to import functions from app 'Blog' you'd want to do 'from users import views as user_views' and 'from blog import views as blog_views' or something similar  
+
 What happens if I move templates over from one templates folder to another templates folder?
 - What Django does is it looks through all the 'templates' folders, starting at the app but traversing through everything if the template isn't found. That's why having the internal folder with the application name is common practice, it prevents any issues with similar named html files. If I have two applications, Blog and User, and a 'templates' folder in both, proper HTML files will be found whether the 'blog' folder and 'users' folder are within their respective Blog and Users 'template' folder or if Blog has both the 'blog' and 'users' folder in its 'template' folder and Users has nothing (or vice versa). You can change the way Django looks for the templates folder as well. Read more about this interesting Django characteristic [here](https://learndjango.com/tutorials/template-structure#:~:text=Option%201%3A%20App%20Level,before%20adding%20your%20template%20file.)
