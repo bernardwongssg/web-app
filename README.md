@@ -84,6 +84,20 @@ Understanding Messages*
 *Modifying Models* 
 - Model Meta is basically the inner class of your model class. Model Meta is basically used to change the behavior of your model fields like changing order options, verbose_name, and a lot of other options. It’s completely optional to add a Meta class to your model. More can be read about it [here](https://www.geeksforgeeks.org/meta-class-in-models-django/#)
 
+### Lesson 7 (11.2.23) 
+*Setting up a Login System* 
+- Django has default views that you can use to make logins and logouts. These are in django.contrib.auth
+- You can figure out where Django's looking for URLs or views in the 404 error page; look for the request URL portion of the error
+- If you don't want the login to redirect to your account info, you can set it up in the settings.py file using LOGIN_REDIRECT_URL and setting the variable to your intended url. ex) LOGIN_REDIRECT_URL = 'blog-home'
+
+*Changing the HTML Based on Who's Logged In* 
+- django has a user variable that contains the current user. This user variable has an attribute is_authenticated that allows you to determine if the user is logged in or not. You can set things using the snippet {% if user.is_authenticated %}. Note that you don't have to pass in user or anything in the requests context or anything, this is something that's built into Django
+
+*Creating Routes That Are Only Accessible If You're Logged In*
+- While you can technically make a view/URL html element only visible using the if snippet mentioned in the above section, there's nothing stopping the user from just manually typing out the URL. You can use a login_required declarator that Django provides by default. This can be imported using the following import: from django.contrib.auth.decorators import login_required. You can then put @login_required above any view function that you want requiring a logged in user. Note that this is different for classed based views
+- Similar to the login system, you can set up which URL view functions with @login_required redirect to if you're not logged in by going into the settings.py file and using the LOGIN_URL variable. ex) LOGIN_URL = 'login' (where 'login' is the views URL name that loads the login screen)
+- What's really neat about Django is that it will still save which URL you were trying to access even when it redirects you to whichever URL you set up as LOGIN_URL. You can see in the website login it will have /?next=/'URL_YOU_WANTED_TO_GO_TO'/ in the URL. Once you enter credentials it will load up the original URL you wanted to navigate to 
+
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
 - sometimes apps only do internal things, urls.py is only useful routing users to pages specific to that app 
@@ -97,3 +111,7 @@ Why don't you need to download the files for some of the extra CSS/JS packages (
 - the files are served from a content delivery network so we don't need to download any files
 Why do my CSS changes not appear?
 - Sometimes you have to close out of the server or reset browser cache. for mac it's cmd + shift + r, for windows it's ctrl + F5
+How do you deal with importing views from multiple applications?
+- In general it's good etiquette to always change the name of a views import since there's a high chance you'll import multiple views files. ex) if you want to import functions from app 'Users' and you want to import functions from app 'Blog' you'd want to do 'from users import views as user_views' and 'from blog import views as blog_views' or something similar  
+What happens if I move templates over from one templates folder to another templates folder?
+- What Django does is it looks through all the 'templates' folders, starting at the app but traversing through everything if the template isn't found. That's why having the internal folder with the application name is common practice, it prevents any issues with similar named html files. If I have two applications, Blog and User, and a 'templates' folder in both, proper HTML files will be found whether the 'blog' folder and 'users' folder are within their respective Blog and Users 'template' folder or if Blog has both the 'blog' and 'users' folder in its 'template' folder and Users has nothing (or vice versa). You can change the way Django looks for the templates folder as well. Read more about this interesting Django characteristic [here](https://learndjango.com/tutorials/template-structure#:~:text=Option%201%3A%20App%20Level,before%20adding%20your%20template%20file.)
