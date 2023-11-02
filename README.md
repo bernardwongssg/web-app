@@ -67,7 +67,7 @@ Following along Corey Schafer's tutorial to get a better understanding of Django
 *Viewing Databases on the Admin Page*
 - In order to view your newly created Models/Databases you have to register your models in the app's admin.py page. You can do this by importing the model in admin.py and calling the method admin.site.register('model_name')
 
-### Lesson 6 (11.1.23)
+### Lesson 6 (11.2.23)
 *Creating a User Creation Form* 
 - Django has some built in classes that you can import and use, especially for forms
 - Note that you can extend templates from other apps, this is why the internal folder with the app name is useful
