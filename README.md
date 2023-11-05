@@ -119,6 +119,30 @@ def create_profile(sender, instance, created, **kwargs):
 the sender is the model User, the condition is post_save (after the sender has been saved), the receiver is @receiver, and the action is create_profile(). This code will create a new profile every time a User has been made 
 - While this can technically be done as a Model, it's sometimes better to make signals to avoid import issues. You can read more about how to set up signals (you'll need a signals.py file and define a read() method in the apps.py file) [here](https://docs.djangoproject.com/en/4.2/topics/signals/). 
 
+### Lesson 9 (11.5.23) 
+*Creating a Model Form*
+- A model form can be used to update models. Within the forms.py method you can create a class and set what the model is and set a list of fields that you want to take as inputs. Then in views you can save those form objects as key: value pairs in the context dictionary and render them in the HTML using crispy_forms_tags or anything that you'd prefer
+- IMPORTANT NOTE: the form and request.FILES will only contain data if the request method was POST, at least one file field was actually posted, and the <form> that posted the request has the attribute enctype="multipart/form-data". Otherwise, request.FILES will be empty. More about this can be read [here](https://docs.djangoproject.com/en/4.2/topics/http/file-uploads/#basic-file-uploads)
+- Say you want the request's model info to auto populate the form. You can use the variable instance = request.model_name to get the current model. ex) say you have a User model that you're trying to make updates from, and you have a UserUpdateForm() class that is meant to update the User model. You can do u_form = UserUpdateForm(instance = request.user) to pull the current User info to use in the HTML, and then pass in context = {'u_form': u_form} into the render() method that's returned
+
+*Overriding the Model save() method*
+- In this project, we might want to limit the size of the image to save space on the file system and decrease run time on the website (since the website has to send the entire data back and forth). Pillow can be used to auto-resize input images, and we can override the save() method to make this change
+- we can go into our models.py file and override the save() method within a model. If we want to still use the model's default save() method we can just call super().save, but then we can do calculations to change saved files or saved items. This would also be an area to delete previous info, only include saves for other stuff, etc. It's not recommended to override the save() method unless you know what you're doing b/c you can cause issues with your database. An example of an overwritten save() method that saves a smaller version of the image can be seen here:
+```
+def save(self):
+    super().save() # parent's method save() will run (in this case, models)
+
+    img = Image.open(self.image.path)
+
+    if img.height > 300 or img.width > 300: 
+        output_size = (300, 300)
+        img.thumbnail(output_size) # resizes image 
+        img.save(self.image.path) # saves the image into self's image path           
+```
+More about overwritting the save() method can be read [here](https://www.geeksforgeeks.org/overriding-the-save-method-django-models/#)
+
+### Lesson 10 (11.5.23)
+
 
 
 # Interesting Q&A
@@ -147,3 +171,16 @@ What happens if I move templates over from one templates folder to another templ
 
 When should you use Django signals?
 - Django signals have their pros and cons. They're particularly useful amongst actions that multiple Apps need to do are might be interested in; say multiple Apps update a particular model, then it might be useful. More examples can be read [here](https://stackoverflow.com/questions/60679719/why-use-signals-in-django#:~:text=The%20Django%20Signals%20is%20a,this%20model%20can%20be%20updated.). It's important to note that signals have downsides where they're pretty hard to debug and follow along. A lot of times you can write functions and do things within models that you're trying to do in signals.py, so most people suggest trying to create methods first and using signals.py as a last resort. More can be read about it [here](https://lincolnloop.com/blog/django-anti-patterns-signals/)
+
+I'm trying to upload a file using form requests but I'm not receiving any files, how come?
+- there's a high possibility you forgot about enctype, make sure you have enctype="multipart/form-data" in your form and that method = "POST". Read more [here](https://docs.djangoproject.com/en/4.2/topics/http/file-uploads/#basic-file-uploads)
+
+What's the difference between forms.Form vs forms.ModelForm?
+- forms.Form are useful for when you're collecting/using data that doesn't necessarily interact with the models or databases. forms.ModelForm is when you're intereacting with models/databases b/c you avoid duplicating your model description. More about this can be read [here](https://stackoverflow.com/questions/2303268/djangos-forms-form-vs-forms-modelform)
+
+What does the warning the browser gives me about 'reloading and resubmitting the form' mean?
+- this occurs when you refresh the page and your page is going to set another POST request. My returning a redirect() method in your request.method == "POST" you submit a GET request instead, avoiding this warning
+
+When should I use image.path or image.url?
+- image.url is moreso used in the HTML and front-end/requests, image.path is used for file management and used within Python code. ex) here are some examples of an image's URL and Path. image URL: /media/profile_pics/1071061_oUEIkgY.jpg
+image Path: /Github_Repos/Education/djangotutorial/django_project/media/profile_pics/1071061_oUEIkgY.jpg
