@@ -98,6 +98,29 @@ Understanding Messages*
 - Similar to the login system, you can set up which URL view functions with @login_required redirect to if you're not logged in by going into the settings.py file and using the LOGIN_URL variable. ex) LOGIN_URL = 'login' (where 'login' is the views URL name that loads the login screen)
 - What's really neat about Django is that it will still save which URL you were trying to access even when it redirects you to whichever URL you set up as LOGIN_URL. You can see in the website login it will have /?next=/'URL_YOU_WANTED_TO_GO_TO'/ in the URL. Once you enter credentials it will load up the original URL you wanted to navigate to 
 
+### Lesson 8 (11.4.23)
+*More about Models: One to One Relationships and Uploaded Files* 
+- Say you want to create a profile for each User. You can use the default OneToOneField() from django.db models to set a 1 to 1 relationship
+- You can also use ImageField and FileField to upload images and Files. You can set a default image/file and set where the files will be uploaded to in the directory with the upload_to variable
+
+*Configuring Media for Better Organization* 
+- if you configure upload_to to a folder, Django will auto-create the folder in the base directory. This can quickly clutter up your Django Project if you have a lot of models saving uploaded items. What you can do is configure a media folder in the settings.py file so that upload folders are generated as a subfolder. This can be done by setting the MEDIA_ROOT and MEDIA_URL
+- Typical convention is MEDIA_ROOT = BASE_DIR / 'media' (which is the same as os.path.join(BASE_DIR, 'media') and setting MEDIA_URL = '/media/'. media_root is setting where the uploaded files will be available on the system, while MEDIA_URL is where uploaded files will be available on the browser. While both are not technically required, they're very useful for organization. More info and examples can be found [here](https://stackoverflow.com/questions/72083187/media-root-vs-media-url-django)
+- When you set the MEDIA_ROOT, you have to configure some things within the project's url.py file for proper access. You can read more about it [here](https://docs.djangoproject.com/en/4.2/howto/static-files/#serving-files-uploaded-by-a-user-during-development), but note that the settings will differ when in the production environment, so static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) should only be added into urlpatterns when settings.DEBUG is True
+
+*Django Signals*
+- signals can be helpful if you need something to occur after something has been done; in short, a sender will send a signal to a receiver that performs an action depending on what the user has done. There are 4 parts to a signal: a sender, a receiver, a condition, and an action. The Sender will send the signal and is what starts off the chain. if the Sender hits a certain 'condition', then the signal will be sent to the receiver. Receiver will receive the signal and perform the action or task. As an example:
+```
+@receiver(post_save, sender = User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user = instance)
+```
+the sender is the model User, the condition is post_save (after the sender has been saved), the receiver is @receiver, and the action is create_profile(). This code will create a new profile every time a User has been made 
+- While this can technically be done as a Model, it's sometimes better to make signals to avoid import issues. You can read more about how to set up signals (you'll need a signals.py file and define a read() method in the apps.py file) [here](https://docs.djangoproject.com/en/4.2/topics/signals/). 
+
+
+
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
 - sometimes apps only do internal things, urls.py is only useful routing users to pages specific to that app 
@@ -121,3 +144,6 @@ How do you deal with importing views from multiple applications?
 
 What happens if I move templates over from one templates folder to another templates folder?
 - What Django does is it looks through all the 'templates' folders, starting at the app but traversing through everything if the template isn't found. That's why having the internal folder with the application name is common practice, it prevents any issues with similar named html files. If I have two applications, Blog and User, and a 'templates' folder in both, proper HTML files will be found whether the 'blog' folder and 'users' folder are within their respective Blog and Users 'template' folder or if Blog has both the 'blog' and 'users' folder in its 'template' folder and Users has nothing (or vice versa). You can change the way Django looks for the templates folder as well. Read more about this interesting Django characteristic [here](https://learndjango.com/tutorials/template-structure#:~:text=Option%201%3A%20App%20Level,before%20adding%20your%20template%20file.)
+
+When should you use Django signals?
+- Django signals have their pros and cons. They're particularly useful amongst actions that multiple Apps need to do are might be interested in; say multiple Apps update a particular model, then it might be useful. More examples can be read [here](https://stackoverflow.com/questions/60679719/why-use-signals-in-django#:~:text=The%20Django%20Signals%20is%20a,this%20model%20can%20be%20updated.). It's important to note that signals have downsides where they're pretty hard to debug and follow along. A lot of times you can write functions and do things within models that you're trying to do in signals.py, so most people suggest trying to create methods first and using signals.py as a last resort. More can be read about it [here](https://lincolnloop.com/blog/django-anti-patterns-signals/)
