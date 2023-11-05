@@ -125,6 +125,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_ROOT = BASE_DIR / 'media'
+# basically the same as os.path.join(BASE_DIR, 'media') 
+# THIS IS WHERE THE UPLOADED FILES WILL BE AVAILABLE ON THE SYSTEM 
+MEDIA_URL = '/media/'
+# THIS IS HOW THE UPLOADED FILES WILL BE AVAILABLE ON THE BROWSER 
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

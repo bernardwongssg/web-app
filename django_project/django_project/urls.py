@@ -17,6 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include 
 
+# for the MEDIA_ROOT config
+from django.conf import settings
+from django.conf.urls.static import static
+
 # good practice to rename views import 
 from django.contrib.auth import views as auth_views 
 from users import views as user_views
@@ -34,5 +38,8 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(template_name = 'users/logout.html'), name = 'logout'),
     # navigating through blogs 
     path('', include('blog.urls')), # use include to map which route should have which URLs. in this case, blog/ uses blog/urls.py 
-    
+
 ]
+
+if settings.DEBUG: 
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
