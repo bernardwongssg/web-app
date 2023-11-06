@@ -142,7 +142,33 @@ def save(self):
 More about overwritting the save() method can be read [here](https://www.geeksforgeeks.org/overriding-the-save-method-django-models/#)
 
 ### Lesson 10 (11.5.23)
+*Class Based Views*
+- class based methods in the views.py file have a lot of built in functionality that can handle some backend processes. There are a lot of different types of class based views; list_view, create_view, update_view, delete_view, etc. A lot of websites have similar functionality (blogs list bunch of stuff, youtube list subscriptions, etc. These are all examples of list_view). You can import these built in classes from django.views.generic
+- You can then use these classes similar to the method based views() in urls.py. Note that you can't directly use the class, but these classes have a method called as_view() that converts the class properly. ex) say we have a PostListView class that inherits ListView from django.views.generic. in the urls.py file you'd have urlpatterns = [path('', PostListView.as_view(), name = 'blog-home'),]. HOWEVER, by default class based views look for a template in the format <app>/<model>_<viewtype>.html (so in this case it's looking for blog/post_list.html). You can set this template by setting the variable template_name. Along with that, you can pass your model items by setting context_object_name. TLDR: you need to set model, template_name, and context_object_name within a class based view. Here is an example of a method based view that loops through all the posts in the Post model:
+```
+# in views.py
+def home(request): 
+    posts = Post.objects.all()
 
+    context = {
+        'posts':  posts
+    }
+    return render(request, 'blog/home.html', context)
+
+# in urls.py
+urlpatterns = [path('', views.home, name = 'blog-home'),]
+```
+And here's an example of the same logic in a classed based view: 
+```
+# in views.py
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/home.html' # <app>/<model>_<viewtype>.html
+    context_object_name = 'posts'
+
+# in urls.py
+urlpatterns = [path('', PostListView.as_view(), name = 'blog-home'),]
+```
 
 
 # Interesting Q&A
