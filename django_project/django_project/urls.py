@@ -36,9 +36,19 @@ urlpatterns = [
     # so we change to users folder instead 
     path('login/', auth_views.LoginView.as_view(template_name = 'users/login.html'), name = 'login'),
     path('logout/', auth_views.LogoutView.as_view(template_name = 'users/logout.html'), name = 'logout'),
+    
+    # resetting password initialization
+    path('password-reset/', auth_views.PasswordResetView.as_view(template_name = 'users/password_reset.html'), name = 'password_reset'),
+    # email sent out with reset instructions 
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name = 'users/password_reset_done.html'), name = 'password_reset_done'),
+    # email verified, truly resetting password
+    path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name = 'users/password_reset_confirm.html'), name = 'password_reset_confirm'),
+    # password reset confirmation 
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name = 'users/password_reset_complete.html'), name = 'password_reset_complete'),
+    
+
     # navigating through blogs 
     path('', include('blog.urls')), # use include to map which route should have which URLs. in this case, blog/ uses blog/urls.py 
-
 ]
 
 if settings.DEBUG: 
