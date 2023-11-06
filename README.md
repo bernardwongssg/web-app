@@ -94,7 +94,7 @@ Understanding Messages*
 - django has a user variable that contains the current user. This user variable has an attribute is_authenticated that allows you to determine if the user is logged in or not. You can set things using the snippet {% if user.is_authenticated %}. Note that you don't have to pass in user or anything in the requests context or anything, this is something that's built into Django
 
 *Creating Routes That Are Only Accessible If You're Logged In*
-- While you can technically make a view/URL html element only visible using the if snippet mentioned in the above section, there's nothing stopping the user from just manually typing out the URL. You can use a login_required declarator that Django provides by default. This can be imported using the following import: from django.contrib.auth.decorators import login_required. You can then put @login_required above any view function that you want requiring a logged in user. Note that this is different for classed based views
+- While you can technically make a view/URL html element only visible using the if snippet mentioned in the above section, there's nothing stopping the user from just manually typing out the URL. You can use a login_required declarator that Django provides by default. This can be imported using the following import: from django.contrib.auth.decorators import login_required. You can then put @login_required above any view function that you want requiring a logged in user. Note that this is different for classed based views; you can view these instructions [here](#decorators-in-classes)
 - Similar to the login system, you can set up which URL view functions with @login_required redirect to if you're not logged in by going into the settings.py file and using the LOGIN_URL variable. ex) LOGIN_URL = 'login' (where 'login' is the views URL name that loads the login screen)
 - What's really neat about Django is that it will still save which URL you were trying to access even when it redirects you to whichever URL you set up as LOGIN_URL. You can see in the website login it will have /?next=/'URL_YOU_WANTED_TO_GO_TO'/ in the URL. Once you enter credentials it will load up the original URL you wanted to navigate to 
 
@@ -169,7 +169,57 @@ class PostListView(ListView):
 # in urls.py
 urlpatterns = [path('', PostListView.as_view(), name = 'blog-home'),]
 ```
+- in the methods based view() we basically have to create a function (render) and explicitely pass in the info, while for the class based view we're just setting variables
+- General stuff about class based views can be seen [here](https://docs.djangoproject.com/en/4.2/topics/class-based-views/)
 
+*More about the ListView Class* 
+- you can easily change the ordering of the list in a ListView class by setting the ordering variable. ex) if you want to order by date_posted you can do ordering = ['-date_posted']
+- more examples for the LIstView class can be found [here](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Generic_views)
+- Reference for ListView: [here](https://www.youtube.com/watch?v=-s7e_Fy6NRU&t=148s)
+
+*Passing a variable through URLs*
+- Django allows you to pull variables through URLs when you use the <> characters within the URL. As an example, if you have path('post/<int:pk>/', PostDetailView.as_view(), name = 'post-detail') in your urlpatterns, the view PostDetailView will be able to pull the variable pk (which is set to be an integer) and use it within views(). B/c PostDetailView is a DetailView that already has a pk variable (primary key) we don't need to set anything in the view, but you can set it to be whatever variable within the view. More about this can be read [here](https://docs.djangoproject.com/en/4.2/topics/http/urls/#example)
+- this URL can be accessed through html by doing href="{% url 'post-detail' post.id %}". post.id is passed into the <> section
+
+*DetailView Class* 
+- by default looks for <app>/<model>_detail.html
+- good for pulling additional details about a certain item in a model
+- expects objects to be called 'object'
+- [reference link](https://www.youtube.com/watch?v=-s7e_Fy6NRU&t=639s)
+
+*CreateView Class* 
+- by default looks for <app>/<model>_form.html
+- good for creating a new item in a model
+- set the fields variable for inputs
+- expects objects to be called 'form'
+- may face IntegrityError if you haven't included all variables needed in the model, make sure everything's included somewhere in the class
+- may face ImproperlyConfigured error (full error: No URL to redirect to.  Either provide a url or define a get_absolute_url method on the Model.), which means the post has been created successfully but there's no direction for where to redirect. This can be set by defining a get_absolute_url() method within the model. ex)
+```
+class Post(models.Model):
+    title = models.CharField(max_length = 100) # characterfield
+    content = models.TextField() # similar to char field, unrestricted text
+    date_posted = models.DateTimeField(default = timezone.now) # passes in function b/c you don't necessarily want to immediately execute function 
+    # on_delete gives instructions on what happens if User gets deleted
+    # ForeignKey is used to map many-to-one relationships 
+    author = models.ForeignKey(User, on_delete = models.CASCADE)
+
+    def __str__(self):
+        return self.title
+
+    # THIS IS THE IMPORTANT CODE
+    def get_absolute_url(self):
+        return reverse('post-detail', kwargs = {'pk': self.pk})
+
+# urls.py
+urlpatterns = [
+    path('post/<int:pk>/', PostDetailView.as_view(), name = 'post-detail'),
+]
+```
+You can also just set the variable success_attribute to whatever url you want within the CreateView class 
+- [reference link](https://youtu.be/-s7e_Fy6NRU?list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p&t=1184)
+
+*Decorators in Classes*
+- say we want to use a decorator (you can review decorators in Django [here](#creating-routes-that-are-only-accessible-if-you're-logged-in)
 
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
@@ -210,3 +260,9 @@ What does the warning the browser gives me about 'reloading and resubmitting the
 When should I use image.path or image.url?
 - image.url is moreso used in the HTML and front-end/requests, image.path is used for file management and used within Python code. ex) here are some examples of an image's URL and Path. image URL: /media/profile_pics/1071061_oUEIkgY.jpg
 image Path: /Github_Repos/Education/djangotutorial/django_project/media/profile_pics/1071061_oUEIkgY.jpg
+
+When should I use CBV (class based views) and when should I use FBV (function based views)?
+- CBV are good for organization and repeatability, FBV are very good for niche and unique functionalities. CBV are harder to interpret and harder for new Django users, there's a higher learning curve (learning which variables to set, how to access items in models, etc.). FBV are easier to create but can lead to repeating code that might be better represented in classes
+
+What's the difference between redirect() vs reverse()?
+- redirect() redirects you to a specific route, reverse() returns a full URL to that route as a str. reverse() is used when you just need the URL as a string and the view will handle the redirect() for us, reverse() is pretty useful for class based views 
