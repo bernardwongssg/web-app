@@ -279,7 +279,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 ```
 More can be read about it [here](https://docs.djangoproject.com/en/4.2/topics/auth/default/#limiting-access-to-logged-in-users-that-pass-a-test)
 
-### Lesson 11
+### Lesson 11 (11.6.23)
 *Pagination*
 - settings limits to the number of things loaded in can decrease run time and just generally make things easier to read; this is where pagination comes in. Django has a paginator object built in by default that makes this easy; you can import this using from django.core.paginator import Paginator
 - You can pass in a list of items and how many items you want per page in the Paginator object. ex) if posts = [1, 2, 3, 4, 5] and p = Paginator(posts, 2), p would have 3 pages (where the first two have 2 items and the last page has one item)
@@ -314,7 +314,38 @@ More can be read about it [here](https://docs.djangoproject.com/en/4.2/topics/au
 *Getting Specific Items in CBV by Overriding get_queryset()*
 - in CBV you can override get_queryset(self) to set conditionals when querying. Note that if you're doing any ordering in the CBV you'll have to set the ordering in the new get_queryset(), since htis method will run last 
 
+### Lesson 12 (11.6.23)
+*Changing User's Passwords*
+- Django has some default built in in auth_views.PasswordResetView to help deal with resettting passwords
+- when resetting your password, Django will be looking for a url with the name 'password_reset_confirm' that has two variables, uid and token. The uid is an additional layer basically ensuring that the user that's requesting the password change is the same user that's logged in; token is checking that the password is valid.
+- you may get a ConnectionRefusedError if Django is trying to send an email but no email server is configured. You can use your own personal gmail or configure your local host as an email server (although that's a lot more setup). You can learn more about configuring local host as email server [here](https://docs.djangoproject.com/en/2.1/topics/email/#configuring-email-for-development)
+- TLDR; you'll need 4 different pages, the initial resetting password page, the email confirmation page, the password reset page after email confirmation and the completion page. Django by default has views for these which are auth_views.PasswordResetView, auth_views.PasswordResetDoneView, auth_views.PasswordResetConfirmView, and auth_views.PasswordResetDoneView. Django will look for urls with the name 'password_reset_done' and 'password_reset_complete' (double check this). Here's an example snippet:
+```
+# project's urls.py page
+urlpatterns = [
+    # resetting password initialization
+        path('password-reset/', auth_views.PasswordResetView.as_view(template_name = 'users/password_reset.html'), name = 'password_reset'),
+        # email sent out with reset instructions 
+        path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name = 'users/password_reset_done.html'), name = 'password_reset_done'),
+        # email verified, truly resetting password
+        path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name = 'users/password_reset_confirm.html'), name = 'password_reset_confirm'),
+        # password reset confirmation 
+        path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name = 'users/password_reset_complete.html'), name = 'password_reset'),   
+]
+```
 
+*Setting up the Email Server* 
+- you can avoid dealing with two factor authorization by configuring an app password. The link to do so for Gmail is [here](https://support.google.com/accounts/answer/185833?hl=en). I don't think Outlook allows for app passwords but I might be wrong.
+- Once you've gotten the app password, the following variables need to be set in the project's settings.py file:
+```
+# settings.py file 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587 
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ssg.automation.team@gmail.com' #os.environ.get('EMAIL_USER')
+EMAIL_HOST_PASSWORD = 'doxd qcdc tceo gwcg' #os.environ.get('EMAIL_PASS')
+```
 
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
@@ -360,4 +391,7 @@ When should I use CBV (class based views) and when should I use FBV (function ba
 - CBV are good for organization and repeatability, FBV are very good for niche and unique functionalities. CBV are harder to interpret and harder for new Django users, there's a higher learning curve (learning which variables to set, how to access items in models, etc.). FBV are easier to create but can lead to repeating code that might be better represented in classes
 
 What's the difference between redirect() vs reverse()?
-- redirect() redirects you to a specific route, reverse() returns a full URL to that route as a str. reverse() is used when you just need the URL as a string and the view will handle the redirect() for us, reverse() is pretty useful for class based views 
+- redirect() redirects you to a specific route, reverse() returns a full URL to that route as a str. reverse() is used when you just need the URL as a string and the view will handle the redirect() for us, reverse() is pretty useful for class based views
+
+I'm trying to get Django to send my reset_password email but it sends out twice, how come?
+- If you're following the tutorial, you probably have a few accounts with the same email. Django loops through the Users and sends the reset email to all users with the same email. You might want to implement checks that don't allow duplicate emails. Reference can be found [here](https://stackoverflow.com/questions/60359345/2-password-reset-e-mails-in-django-every-time-i-try-to-reset-a-password?rq=3)
