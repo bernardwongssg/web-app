@@ -94,7 +94,7 @@ Understanding Messages*
 - django has a user variable that contains the current user. This user variable has an attribute is_authenticated that allows you to determine if the user is logged in or not. You can set things using the snippet {% if user.is_authenticated %}. Note that you don't have to pass in user or anything in the requests context or anything, this is something that's built into Django
 
 *Creating Routes That Are Only Accessible If You're Logged In*
-- While you can technically make a view/URL html element only visible using the if snippet mentioned in the above section, there's nothing stopping the user from just manually typing out the URL. You can use a login_required declarator that Django provides by default. This can be imported using the following import: from django.contrib.auth.decorators import login_required. You can then put @login_required above any view function that you want requiring a logged in user. Note that this is different for classed based views; you can view these instructions [here](#lesson-10-(11.5.23))
+- While you can technically make a view/URL html element only visible using the if snippet mentioned in the above section, there's nothing stopping the user from just manually typing out the URL. You can use a login_required declarator that Django provides by default. This can be imported using the following import: from django.contrib.auth.decorators import login_required. You can then put @login_required above any view function that you want requiring a logged in user. Note that this is different for classed based views; you can view these instructions in Lesson 10
 - Similar to the login system, you can set up which URL view functions with @login_required redirect to if you're not logged in by going into the settings.py file and using the LOGIN_URL variable. ex) LOGIN_URL = 'login' (where 'login' is the views URL name that loads the login screen)
 - What's really neat about Django is that it will still save which URL you were trying to access even when it redirects you to whichever URL you set up as LOGIN_URL. You can see in the website login it will have /?next=/'URL_YOU_WANTED_TO_GO_TO'/ in the URL. Once you enter credentials it will load up the original URL you wanted to navigate to 
 
@@ -218,8 +218,66 @@ urlpatterns = [
 You can also just set the variable success_attribute to whatever url you want within the CreateView class 
 - [reference link](https://youtu.be/-s7e_Fy6NRU?list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p&t=1184)
 
-*Decorators in Classes*
-- say we want to use a decorator (you can review decorators in Django [here](#creating-routes-that-are-only-accessible-if-you're-logged-in)
+*UpdateView Class* 
+- very similar to the CreateView class, it will look for the same html file as CreateView 
+- [reference link](https://youtu.be/-s7e_Fy6NRU?list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p&t=1979)
+
+*DeleteView Class* 
+- by default looks for <app>/<model>_confirm_delete.html
+- expects objects to be called 'object'
+- similar to CreateView, you may face an ImproperlyConfigured error. You need to set the success_url variable, which is the URL that you get redirected to once the item is successfully deleted 
+- [reference link](https://youtu.be/-s7e_Fy6NRU?list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p)
+
+*Decorators in Classes, Mixins*
+- say we want to use a decorator (you can review decorators in Lesson 7) to only allow the CreateView class to be viewed when you're actually logged in. Django has some built in functionality specific for class based views within mixins; examples can be read [here](https://docs.djangoproject.com/en/4.2/topics/class-based-views/mixins/). ex)
+```
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+# LoginRequiredMixin is passed into this class, requiring the user to be logged in to view this class based view 
+class PostCreateView(LoginRequiredMixin, CreateView):
+    # this will be looking for blog/post_form.html
+    # items from this model will be referenced with the keyword 'object'
+    model = Post
+    fields = ['title', 'content']
+
+    def form_valid(self, form):
+        '''
+        you do this before saving the form, b/c the author isn't set yet 
+        you can do this when validating the form. That's why you override form_valid()
+        instead of save() 
+        '''
+        # before you set the form, set the author 
+        form.instance.author = self.request.user 
+        return super().form_valid(form)
+```
+- another example of a mixin in the UserPassesTestMixin, which is primarily done to test if a User passes a certain criteria. Here's some example code verifying the logged in user is the same as the author of a post:
+```
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    # this will be looking for blog/post_form.html
+    # items from this model will be referenced with the keyword 'object'
+    # NOTE: while the code is pretty similar to PostCreateView, you should add in extra validation to make sure the author is valid
+    model = Post
+    fields = ['title', 'content']
+
+    def form_valid(self, form):
+        '''
+        you do this before saving the form, b/c the author isn't set yet 
+        you can do this when validating the form. That's why you override form_valid()
+        instead of save() 
+        '''
+        # before you set the form, set the author 
+        form.instance.author = self.request.user 
+        return super().form_valid(form)
+
+    def test_func(self):
+        '''
+        used by UserPassesTestMixin
+        '''
+        post = self.get_object() # gets the post that we're currently trying to update 
+        return self.request.user == post.author # if current logged in user is equal to post author
+
+```
+More can be read about it [here](https://docs.djangoproject.com/en/4.2/topics/auth/default/#limiting-access-to-logged-in-users-that-pass-a-test)
 
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
