@@ -279,6 +279,43 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 ```
 More can be read about it [here](https://docs.djangoproject.com/en/4.2/topics/auth/default/#limiting-access-to-logged-in-users-that-pass-a-test)
 
+### Lesson 11
+*Pagination*
+- settings limits to the number of things loaded in can decrease run time and just generally make things easier to read; this is where pagination comes in. Django has a paginator object built in by default that makes this easy; you can import this using from django.core.paginator import Paginator
+- You can pass in a list of items and how many items you want per page in the Paginator object. ex) if posts = [1, 2, 3, 4, 5] and p = Paginator(posts, 2), p would have 3 pages (where the first two have 2 items and the last page has one item)
+- methods include .num_pages (returns number of pages), .page_range (list of pages), .page(page_num) (which returns the page at page_num). For pages, you can use methods like .number (which returns the page_num in the Paginator), .object_list (which returns the objects on the page), .has_previous()/.has_next() (returns bool whether there are previous or next pages), etc.
+- If we have a class based view, we actually don't need to use a Paginator object. Most of the CBV have a variable paginate_by that you can set; ex) paginate_by = 2 in a ListView would ensure that only 2 items from the model you're listing are loaded at a time
+- you can access individual pages in a Paginator by including '/?page=x' in your URL, where x is your intended page_num 
+- here's an example of some code you'd include in the HTML file to loop through objects in the Paginator object:
+```
+{% if is_paginated %}
+    {% if page_obj.has_previous %} <!-- page_obj is the current page -->
+        <a class = "btn btn-outline-info mb-4" href="?page=1">First</a>
+        <a class = "btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number  == num %}
+            <a class = "btn btn-info mb-4" href="?page={{ num }}"> {{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <!-- if pages are within 3 pages -->
+            <a class = "btn btn-outline-info mb-4" href="?page={{ num }}"> {{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class = "btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a class = "btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+
+{% endif %}
+```
+- More about Paginator can be read [here](https://docs.djangoproject.com/en/4.2/topics/pagination/)
+
+*Getting Specific Items in CBV by Overriding get_queryset()*
+- in CBV you can override get_queryset(self) to set conditionals when querying. Note that if you're doing any ordering in the CBV you'll have to set the ordering in the new get_queryset(), since htis method will run last 
+
+
+
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
 - sometimes apps only do internal things, urls.py is only useful routing users to pages specific to that app 
