@@ -450,3 +450,6 @@ What's the difference between redirect() vs reverse()?
 
 I'm trying to get Django to send my reset_password email but it sends out twice, how come?
 - If you're following the tutorial, you probably have a few accounts with the same email. Django loops through the Users and sends the reset email to all users with the same email. You might want to implement checks that don't allow duplicate emails. Reference can be found [here](https://stackoverflow.com/questions/60359345/2-password-reset-e-mails-in-django-every-time-i-try-to-reset-a-password?rq=3)
+
+What's the point of hiding the Django secret_key?
+- the SECRET_KEY is used by django to hash data like the database, usernames, passwords, etc. With the SECRET_KEY you can unencrypt the data which wouldn't be great. more about it can be read [here](https://stackoverflow.com/questions/71646293/why-hide-a-django-secret-key)
