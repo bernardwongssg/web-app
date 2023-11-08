@@ -347,6 +347,61 @@ EMAIL_HOST_USER = 'ssg.automation.team@gmail.com' #os.environ.get('EMAIL_USER')
 EMAIL_HOST_PASSWORD = 'doxd qcdc tceo gwcg' #os.environ.get('EMAIL_PASS')
 ```
 
+### Lesson 13 
+*Setting up the linode server*
+- Note that at 26:35 I did 'sudo systemctl restart ssh' instead
+- go through the tutorial to get the linode set up, you'll have to do it through bash on windows (powershell)
+
+*Configuring the Django Code for production* 
+- you have to add the domain name or IP address in the ALLOWED_HOSTS list in the project's settings.py file
+- static files are handled a little differently in development vs production; in development Django automatically finds the static root, but in production, you have to specifically mention where the static folder exists, so in the settings.py file you need to set STATIC_ROOT. Typically it's something like STATIC_ROOT = BASE_DIR / 'static'
+- To get the static files working on the server you need to call the command 'python manage.py collectstatic'. This will make a static folder with all the files in all the static folders (remember that you typically have static folders for each application)
+- You can then run python manage.py runserver 0.0.0.0:8000 which is the default port that's been opened up. You can then go domain name or IP address + :8000 to see the website running
+
+*Configuring a more consistent web server*
+- while django has a pretty good server for development (python manage.py runserver), it's not as consistent as apache or ngix.
+- Within these servers you have to configure the static, media, and wsgi.py permission. The wsgi.py file is what Django uses to communicate with the web server. Here's an example of what included configurations would be in the project .conf file:
+```
+Alias /static /home/bew030/django_project/static
+<Directory /home/bew030/django_project/static> 
+        Require all granted
+</Directory>
+
+Alias /media /home/bew030/django_project/media 
+<Directory /home/bew030/django_project/media>
+        Require all granted
+</Directory>    
+
+<Directory /home/bew030/django_project/django_project>
+        <Files wsgi.py>
+                Require all granted
+        </Files>
+</Directory>
+
+WSGIScriptAlias / /home/bew030/django_project/django_project/wsgi.py
+WSGIDaemonProcess django_app python-path=/home/bew030/django_project python-home=/home/bew030/django_project/venv
+WSGIProcessGroup django_app
+```
+- you also need to make a config file to hold your sensitive info like the SECRET_KEY. You can make a JSON or YAML config file to store sensitive info. Your settings.py file would include a snippet like this:
+```
+import json
+
+with open('/etc/config.json') as config_file:
+    config = json.load(config_file)
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = config['SECRET_KEY']
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+```
+where you config file has a key:pair JSON string
+
+- Don't forget to set DEBUG = False in the settings.py file; DEBUG = True will give too much info on the 404 screen (like what URL it's looking for, some snippets of the code, etc.)
+- NOTE: when going through the tutorial, you need to do 'chmod o+x /home/username' to allow permissions for the home folder. source can be found [here](https://stackoverflow.com/questions/69635988/deploying-django-app-forbidden-you-dont-have-permission-to-access-this-resour). If you're getting a 403 permissions error that's probably why 
+
+
+
 # Interesting Q&A
 Why isn't the urls.py auto-generated? 
 - sometimes apps only do internal things, urls.py is only useful routing users to pages specific to that app 
