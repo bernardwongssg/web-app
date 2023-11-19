@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import json
 
-with open('/etc/config.json') as config_file:
+with open('etc/config.json') as config_file:
     config = json.load(config_file)
 
 
@@ -28,9 +28,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['173.255.215.130','www.bernardwong.xyz']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    '173.255.215.130','www.bernardwong.xyz'
+]
 
 
 # Application definition
@@ -158,5 +161,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587 
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ssg.automation.team@gmail.com' #os.environ.get('EMAIL_USER')
-EMAIL_HOST_PASSWORD = 'doxd qcdc tceo gwcg' #os.environ.get('EMAIL_PASS')
+EMAIL_HOST_USER = config['EMAIL_USER'] #os.environ.get('EMAIL_USER')
+EMAIL_HOST_PASSWORD = config['EMAIL_PASS'] #os.environ.get('EMAIL_PASS')
